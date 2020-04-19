@@ -6,10 +6,19 @@ import random
 from datetime import datetime, timedelta
 
 
-def format_output(message):
+def format_output(stock_symbol, last_price, average, stocks):
     print("---------------------------------")
+    print(stock_symbol)
+    print("LAST PRICE: " + last_price)
+    print("AVERAGE (H-L): " + average)
+    print("STOCKS: " + stocks)
+    print("---------------------------------")
+
+
+def format_error(message):
+    print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     print(message)
-    print("---------------------------------")
+    print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
 
 # Validate the user input is correct
@@ -33,29 +42,35 @@ def calculate_average(data):
 #     color_list = ["RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN"]
 #     random_color = random.choice(color_list)
 
+def get_last_closing_price(data):
+    return data[-1]["close"]
 
 # Get the stock data
+
+
 def get_stock_data(stock_symbol, start_date, end_date):
 
     headers = {'Content-Type': 'application/json'}
     base_url = "https://api.tiingo.com/tiingo/daily/" + stock_symbol + '/prices?'
-    api_key = 'Your API key here'
+    api_key = 'Your api key here'
     payload = {
         'startDate': start_date,
         'endDate': end_date,
         'token': api_key,
-        'columns': ['low,high']
+        'columns': ['close,low,high']
     }
 
     response = req.get(base_url, params=payload, headers=headers)
 
     if response.status_code == 404:
-        format_output(f"{stock_symbol} is not a valid stock symbol")
+        format_error(f"{stock_symbol} is not a valid stock symbol")
         return
 
     data = response.json()
     result = calculate_average(data)
-    format_output(f"{stock_symbol} -> {result}")
+    stocks = 1000/result
+    last_price = get_last_closing_price(data)
+    format_output(stock_symbol, str(last_price), str(result), str(stocks))
 
 
 # calculate the date 10 days ago
